@@ -82,7 +82,7 @@ Legend: 🔧 = diagnostic entity · 💤 = disabled by default · 🌐 = HTTP-on
 | AC socket 1 energy | energy | Wh | _integrated_ |  |
 | AC socket 2 energy | energy | Wh | _integrated_ |  |
 | Wi-Fi signal | signal_strength | dBm | `moduleWifiRssi` | 🔧 💤 |
-| Device role | — | — | `seriesConnectDeviceStatus` | 🔧 💤 ⚠️ |
+| Device role | — | — | `distributedDeviceStatus` | 🔧 ⚠️ |
 | Local IP address | — | — | `iotIpAddress` | 🔧 💤 ⚠️ |
 | Gateway IP address | — | — | `iotGatewayAddress` | 🔧 💤 ⚠️ |
 

@@ -895,11 +895,10 @@ _DIAG_SENSORS: tuple[EcoFlowSensorEntityDescription, ...] = (
     EcoFlowSensorEntityDescription(
         key="device_role",
         translation_key="device_role",
-        mqtt_key="seriesConnectDeviceStatus",
+        mqtt_key="distributedDeviceStatus",
         name="Device role",
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_registry_enabled_default=False,
-        available_fn=lambda q: "seriesConnectDeviceStatus" in q,
+        available_fn=lambda q: "distributedDeviceStatus" in q,
         undocumented=True,
     ),
     EcoFlowSensorEntityDescription(

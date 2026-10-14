@@ -17,7 +17,7 @@
 
 import { LitElement, html } from "lit";
 import { HOUSE_CARD_TYPE } from "./const.js";
-import { entityMap, relevantStatesChanged, streamDevices } from "./entities.js";
+import { entityMap, followMaster, relevantStatesChanged, streamDevices } from "./entities.js";
 import { fmtPower, isEntityId, isTemplate, numState, splitPower } from "./format.js";
 import { ensureHaComponents } from "./ha-components.js";
 import { localize } from "./localize.js";
@@ -98,10 +98,10 @@ export class EcoFlowHouseCard extends LitElement {
   get _device() {
     const devices = streamDevices(this.hass);
     if (!devices.length) return null;
-    if (this._config.device) {
-      return devices.find((d) => d.deviceId === this._config.device) || devices[0];
-    }
-    return devices[0];
+    const picked =
+      (this._config.device && devices.find((d) => d.deviceId === this._config.device)) ||
+      devices[0];
+    return followMaster(this.hass, devices, picked);
   }
 
   _state(slot) {

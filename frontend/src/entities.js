@@ -35,6 +35,7 @@ export const KNOWN_KEYS = {
     "full_energy",
     "cycles",
     "calendar_soh",
+    "device_role",
   ],
   binary_sensor: ["battery_charging"],
   number: ["max_charge_soc", "min_discharge_soc", "backup_reserve"],
@@ -82,6 +83,17 @@ export function streamDevices(hass) {
   }
   devicesCache.set(reg, { devReg: hass.devices, devices });
   return devices;
+}
+
+function roleOf(hass, device) {
+  const ent = device.ents.find((e) => keyOf(e) === "device_role");
+  return ent ? hass.states?.[ent.entity_id]?.state : undefined;
+}
+
+export function followMaster(hass, devices, picked) {
+  if (!picked || roleOf(hass, picked) !== "SLAVE") return picked;
+  const masters = devices.filter((d) => roleOf(hass, d) === "MASTER");
+  return masters.length === 1 ? masters[0] : picked;
 }
 
 /* Whether anything a card renders from could have changed between two hass

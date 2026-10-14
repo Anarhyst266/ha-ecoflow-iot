@@ -37,7 +37,7 @@ Legend: 🔧 = diagnostic entity · 💤 = disabled by default · 🌐 = HTTP-on
 | Grid import energy | energy | Wh | `gridConnectionPower` |  |
 | Grid export energy | energy | Wh | `gridConnectionPower` |  |
 | Wi-Fi signal | signal_strength | dBm | `moduleWifiRssi` | 🔧 💤 |
-| Device role | — | — | `seriesConnectDeviceStatus` | 🔧 💤 ⚠️ |
+| Device role | — | — | `distributedDeviceStatus` | 🔧 ⚠️ |
 | Local IP address | — | — | `iotIpAddress` | 🔧 💤 ⚠️ |
 | Gateway IP address | — | — | `iotGatewayAddress` | 🔧 💤 ⚠️ |
 | Feed-in power limit | power | W | `feedGridModePowLimit` | 🔧 |
