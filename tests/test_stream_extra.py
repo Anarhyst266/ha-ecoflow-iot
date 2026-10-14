@@ -158,6 +158,19 @@ check("remaining energy None without SoC", raw_value(SENS["remain_energy"], {"cm
 check("remaining energy unavailable without capacity", available(SENS["remain_energy"], {"cmsBattSoc": 60.0}), False)
 check("remaining energy disabled by default", SENS["remain_energy"].entity_registry_enabled_default, False)
 
+MASTER_Q = {"distributedDeviceStatus": "MASTER", "cmsBattSoc": 94.0, "bmsBattSoc": 94.0, "cmsBattFullEnergy": 5760, "bmsDesignCap": 1920}
+SLAVE_Q = {"distributedDeviceStatus": "SLAVE", "cmsBattSoc": 0.0, "bmsBattSoc": 93.0, "cmsBattFullEnergy": 0, "bmsDesignCap": 1920}
+check("master battery = system SoC", raw_value(SENS["cms_batt_soc"], MASTER_Q), 94.0)
+check("master capacity = system capacity", raw_value(SENS["full_energy"], MASTER_Q), 5760)
+check("slave battery = own pack SoC", raw_value(SENS["cms_batt_soc"], SLAVE_Q), 93.0)
+check("slave capacity = own pack capacity", raw_value(SENS["full_energy"], SLAVE_Q), 1920)
+check("slave remaining energy from own pack", raw_value(SENS["remain_energy"], SLAVE_Q), 1785.6)
+check("single unit battery unchanged", raw_value(SENS["cms_batt_soc"], {"cmsBattSoc": 61.0}), 61.0)
+
+check("time to full real value", raw_value(SENS["chg_rem_time"], {"cmsChgRemTime": 136}), 136)
+check("time to full 5939 -> unknown", raw_value(SENS["chg_rem_time"], {"cmsChgRemTime": 5939}), None)
+check("time to empty 5938 -> unknown", raw_value(SENS["dsg_rem_time"], {"cmsDsgRemTime": 5938}), None)
+
 check("no local meter -> no dynamic sensors", dev.dynamic_entity_descriptions(Platform.SENSOR, {"localMeter": {"online": 0, "model": "NONE", "sn": ""}}), [])
 check("meter discovery via model", dev.dynamic_entity_descriptions(Platform.SENSOR, {"localMeter": {"online": 0, "model": "SMR"}}) != [], True)
 METER_Q = {"localMeter": {"online": 1, "model": "SMR", "totalPwr": 512.5, "totalImportKwh": 1234.5, "totalExportKwh": 99.9, "phaseAPower": 100.0, "phaseAVol": 230.1, "phaseACur": 0.5}}

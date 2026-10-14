@@ -57,9 +57,30 @@ from ..helpers import (
 _BATTERY_MARKERS = ("cmsBattSoc", "bmsBattSoc", "soc")
 
 
+_REM_TIME_UNKNOWN = 5938
+
+
+def _is_slave(quota: Mapping[str, Any]) -> bool:
+    return quota.get("distributedDeviceStatus") == "SLAVE"
+
+
+def _battery_soc(quota: Mapping[str, Any]) -> float | None:
+    return _round2(quota.get("bmsBattSoc" if _is_slave(quota) else "cmsBattSoc"))
+
+
+def _battery_full_energy(quota: Mapping[str, Any]) -> Any:
+    return quota.get("bmsDesignCap" if _is_slave(quota) else "cmsBattFullEnergy")
+
+
+def _rem_time(value: Any) -> Any:
+    if isinstance(value, (int, float)) and value >= _REM_TIME_UNKNOWN:
+        return None
+    return value
+
+
 def _remaining_energy(quota: Mapping[str, Any]) -> float | None:
-    soc = quota.get("cmsBattSoc")
-    full = quota.get("cmsBattFullEnergy")
+    soc = _battery_soc(quota)
+    full = _battery_full_energy(quota)
     if not isinstance(soc, (int, float)) or not isinstance(full, (int, float)):
         return None
     return round(full * soc / 100, 1)
@@ -148,10 +169,10 @@ _BATTERY_SENSORS: tuple[EcoFlowSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.BATTERY,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
-        value_fn=_round2,
+        quota_value_fn=_battery_soc,
         # Stepped charging icon while charging (powGetBpCms > 0), else auto.
         icon_fn=lambda q: battery_charging_icon(
-            q.get("cmsBattSoc"), float(q.get("powGetBpCms") or 0) > 0
+            _battery_soc(q), float(q.get("powGetBpCms") or 0) > 0
         ),
     ),
     EcoFlowSensorEntityDescription(
@@ -226,6 +247,7 @@ _BATTERY_SENSORS: tuple[EcoFlowSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         entity_category=EntityCategory.DIAGNOSTIC,
+        quota_value_fn=_battery_full_energy,
     ),
     EcoFlowSensorEntityDescription(
         key="remain_energy",
@@ -255,6 +277,7 @@ _BATTERY_SENSORS: tuple[EcoFlowSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.MINUTES,
         entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_rem_time,
     ),
     EcoFlowSensorEntityDescription(
         key="dsg_rem_time",
@@ -264,6 +287,7 @@ _BATTERY_SENSORS: tuple[EcoFlowSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.MINUTES,
         entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_rem_time,
     ),
     EcoFlowSensorEntityDescription(
         key="ai_tou_target_soc",
