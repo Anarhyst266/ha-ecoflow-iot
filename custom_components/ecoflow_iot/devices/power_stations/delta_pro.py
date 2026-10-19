@@ -1253,12 +1253,13 @@ class DeltaProDevice(EcoFlowDevice):
     """EcoFlow Delta Pro portable power station.
 
     Serial numbers start with ``DCAB`` (spec example URL fragment
-    ``sn=DCABZ***``; field units also ship other 5th characters). Also matched
+    ``sn=DCABZ***``; field units also ship other 5th characters) or ``DCEB``
+    (EU units). Also matched
     via the distinctive ``bmsMaster.soc`` quota key absent from other families.
     """
 
     model = "EcoFlow Delta Pro"
-    sn_prefixes: tuple[str, ...] = ("DCAB",)
+    sn_prefixes: tuple[str, ...] = ("DCAB", "DCEB")
 
     @classmethod
     def matches(cls, sn: str, quota: Mapping[str, Any]) -> bool:

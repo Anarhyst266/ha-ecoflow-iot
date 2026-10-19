@@ -49,13 +49,15 @@ _LOGGER = logging.getLogger(__name__)
 #     microinverter is the battery-less variant).
 #   - SmartMeterDevice precedes both Stream classes (its BK21 prefix is inside
 #     the broad Stream BK prefix).
+#   - DeltaProDevice precedes Delta2MaxDevice (an unknown Delta Pro serial
+#     also satisfies the Delta 2 Max ``pd.soc``/``inv.cfgAcEnabled`` fallback).
 DEVICE_REGISTRY: tuple[type[EcoFlowDevice], ...] = (
     # Power Stations
     Delta2Device,
+    DeltaProDevice,
     Delta2MaxDevice,
     Delta3MaxPlusDevice,
     Delta3MaxDevice,
-    DeltaProDevice,
     DeltaPro3Device,
     DeltaProUltraDevice,
     River2ProDevice,
