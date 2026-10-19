@@ -48,6 +48,25 @@ export const cardStyles = css`
   .subtitle {
     color: var(--secondary-text-color);
     font-size: 0.95em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .role-chip {
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    padding: 3px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--divider-color);
+    color: var(--secondary-text-color);
+  }
+  .role-chip.master {
+    border-color: transparent;
+    background: var(--primary-color);
+    color: var(--text-primary-color, #fff);
   }
   /* battery / device circle (right of the header, vertically centred) */
   .batt-circle {

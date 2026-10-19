@@ -90,6 +90,21 @@ function roleOf(hass, device) {
   return ent ? hass.states?.[ent.entity_id]?.state : undefined;
 }
 
+export function systemRole(hass, devices, device) {
+  const role = roleOf(hass, device);
+  if (role === "SLAVE") return role;
+  if (role !== "MASTER") return undefined;
+  return devices.some((d) => d !== device && roleOf(hass, d) === "SLAVE")
+    ? role
+    : undefined;
+}
+
+export function roleEntityIds(devices) {
+  return devices
+    .map((d) => d.ents.find((e) => keyOf(e) === "device_role")?.entity_id)
+    .filter(Boolean);
+}
+
 export function followMaster(hass, devices, picked) {
   if (!picked || roleOf(hass, picked) !== "SLAVE") return picked;
   const masters = devices.filter((d) => roleOf(hass, d) === "MASTER");

@@ -12,7 +12,13 @@ import { CARD_TYPE, assetUrl } from "./const.js";
 import { deviceImageUrl, imageUrlForKey } from "./device-image.js";
 import { ACTIVE_W, deriveFlowStates } from "./flows.js";
 import { feedInOffBadge, gridInput, gridReading } from "./grid.js";
-import { entityMap, relevantStatesChanged, streamDevices } from "./entities.js";
+import {
+  entityMap,
+  relevantStatesChanged,
+  roleEntityIds,
+  streamDevices,
+  systemRole,
+} from "./entities.js";
 import {
   fetchHourlyWh,
   fetchSolarForecasts,
@@ -130,6 +136,11 @@ export class EcoFlowEnergyCard extends LitElement {
     return devices[0];
   }
 
+  get _role() {
+    const device = this._device;
+    return device ? systemRole(this.hass, streamDevices(this.hass), device) : undefined;
+  }
+
   _state(slot) {
     const override = this._config.entities?.[slot];
     if (override) {
@@ -173,6 +184,7 @@ export class EcoFlowEnergyCard extends LitElement {
       if (item?.entity) ids.push(item.entity);
     }
     if (this._config?.grid_entity) ids.push(this._config.grid_entity);
+    ids.push(...roleEntityIds(streamDevices(this.hass)));
     return relevantStatesChanged(changed.get("hass"), this.hass, ids);
   }
 
@@ -460,12 +472,22 @@ export class EcoFlowEnergyCard extends LitElement {
     return html`<div class="head">
       <div class="head-left">
         <div class="name">${name}</div>
-        ${model && model !== name
-          ? html`<div class="subtitle">${model}</div>`
-          : ""}
+        ${this._renderSubtitle(model && model !== name ? model : "")}
         ${this._show("show_ac") ? this._renderAc() : ""}
       </div>
       ${this._renderBatteryCircle(imageSrc, name)}
+    </div>`;
+  }
+
+  _renderSubtitle(model) {
+    const role = this._role;
+    if (!model && !role) return "";
+    return html`<div class="subtitle">
+      ${model}${role
+        ? html`<span class="role-chip ${role.toLowerCase()}"
+            >${this._t(`card.role_${role.toLowerCase()}`)}</span
+          >`
+        : ""}
     </div>`;
   }
 
@@ -889,7 +911,9 @@ export class EcoFlowEnergyCard extends LitElement {
       <div class="stat-value">
         ${this._metric(splitPower(r.value))}${feedInOffBadge(this)}
       </div>
-      <div class="stat-sub">${label}</div>
+      <div class="stat-sub">
+        ${label}${this._role === "MASTER" ? ` · ${this._t("card.system")}` : ""}
+      </div>
     </div>`;
   }
 
